@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "qdQmA+IpUkF5BC2MRxtCJoo90OxavCeGUSx3QUfIdwZyo79lEXOVXTMNsbBHWMuXzqn2W4OD0K73OfPHBBgkeQ==",
+  "success": true,
+  "projectFilePath": "/home/leader/Desktop/WarehouseManagementSystem/WarehouseManagementSystem.csproj",
+  "expectedPackageFiles": [
+    "/home/leader/.nuget/packages/newtonsoft.json/13.0.4/newtonsoft.json.13.0.4.nupkg.sha512",
+    "/home/leader/.nuget/packages/spectre.console/0.54.0/spectre.console.0.54.0.nupkg.sha512"
+  ],
+  "logs": []
+}

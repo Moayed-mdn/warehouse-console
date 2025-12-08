@@ -1,0 +1,11 @@
+[
+  {
+    "Id": 1,
+    "Username": "admin",
+    "Password": "Admin123",
+    "FullName": "System Administrator",
+    "Role": 0,
+    "CreatedAt": "2025-12-08T20:34:26.9123072+03:00",
+    "IsActive": true
+  }
+]
