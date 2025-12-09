@@ -6,7 +6,7 @@ namespace WarehouseManagementSystem.Utilities;
 public static class Validator
 {
     private static readonly Regex UsernameRegex = new Regex(@"^[a-zA-Z0-9_]{3,20}$");
-    private static readonly Regex PasswordRegex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$");
+    private static readonly Regex PasswordRegex = new Regex(@"^.{8,}$");
     private static readonly Regex EmailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
     private static readonly Regex PhoneRegex = new Regex(@"^\+?[\d\s\-\(\)]{10,}$");
     private static readonly Regex FileNameRegex = new Regex(@"^[a-zA-Z0-9_\-]+\.(json|txt|csv)$");
