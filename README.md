@@ -1,10 +1,7 @@
 ## Default Login:
 
-Username: admin
-
-Password: Admin123
-
-
+**👤 Username:** `admin`  
+**🔒 Password:** `Admin123`
 
 ## 🔐 User Role Permissions
 
