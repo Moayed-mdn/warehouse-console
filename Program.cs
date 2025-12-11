@@ -14,6 +14,7 @@ class Program
     private static ProductService _productService;
     private static OrderService _orderService;
     private static ReportService _reportService;
+    private static ShoppingCartService _shoppingCartService;
 
     static void Main(string[] args)
     {
@@ -25,9 +26,10 @@ class Program
     {
         _authService = new AuthenticationService();
         _categoryService = new CategoryService();
-        _productService = new ProductService();
-        _orderService = new OrderService(_productService);
+        _productService = new ProductService(_categoryService);
+        _orderService = new OrderService(_productService, _categoryService);
         _reportService = new ReportService(_orderService);
+        _shoppingCartService = new ShoppingCartService(_productService);
     }
 
     private static void ShowMainMenu()
@@ -278,7 +280,6 @@ class Program
         {
             var productId = AnsiConsole.Ask<int>("Enter Product ID to delete:");
             
-            // Confirm deletion
             if (!AnsiConsole.Confirm($"Are you sure you want to delete product #{productId}?"))
                 return;
 
@@ -295,7 +296,8 @@ class Program
 
     private static void PointOfSale()
     {
-        var cart = new ShoppingCart(_productService);
+        var cart = _shoppingCartService;
+        cart.ClearCart();
         
         while (true)
         {
@@ -335,7 +337,7 @@ class Program
         }
     }
 
-    private static void ScanProduct(ShoppingCart cart)
+    private static void ScanProduct(IShoppingCart cart)
     {
         var productId = AnsiConsole.Ask<int>("Enter Product ID:");
         
@@ -367,7 +369,7 @@ class Program
         Thread.Sleep(1500);
     }
 
-    private static void ViewCart(ShoppingCart cart)
+    private static void ViewCart(IShoppingCart cart)
     {
         var items = cart.GetItems();
         
@@ -402,7 +404,7 @@ class Program
                 .AllowEmpty());
     }
 
-    private static void Checkout(ShoppingCart cart)
+    private static void Checkout(IShoppingCart cart)
     {
         var items = cart.GetItems();
         
@@ -433,7 +435,7 @@ class Program
         {
             _orderService.Add(order);
             
-            // Generate invoice
+            
             var invoiceBuilder = new InvoiceBuilder()
                 .AddHeader("Warehouse Store", "123 Main St, City", "555-1234")
                 .AddCustomerInfo(customerName, DateTime.Now, order.Id)
@@ -857,7 +859,7 @@ class Program
                 .AllowEmpty());
     }
 
-    private static void RemoveItemFromCart(ShoppingCart cart)
+    private static void RemoveItemFromCart(IShoppingCart cart)
     {
         var items = cart.GetItems();
         
@@ -878,53 +880,4 @@ class Program
         AnsiConsole.MarkupLine("[green]Item removed from cart[/]");
         Thread.Sleep(1500);
     }
-}
-
-// Shopping Cart Implementation
-public class ShoppingCart : IShoppingCart
-{
-    private readonly List<OrderItem> _items = new();
-    private readonly ProductService _productService;
-
-    public ShoppingCart(ProductService productService)
-    {
-        _productService = productService;
-    }
-
-    public void AddItem(Product product, int quantity)
-    {
-        var existingItem = _items.FirstOrDefault(i => i.ProductId == product.Id);
-        
-        if (existingItem.ProductId != 0)
-        {
-            _items.Remove(existingItem);
-            existingItem.Quantity += quantity;
-            _items.Add(existingItem);
-        }
-        else
-        {
-            _items.Add(new OrderItem(product.Id, product.Name, product.Price, quantity));
-        }
-    }
-
-    public void RemoveItem(int productId)
-    {
-        var item = _items.FirstOrDefault(i => i.ProductId == productId);
-        if (item.ProductId != 0)
-        {
-            _items.Remove(item);
-        }
-    }
-
-    public void ClearCart() => _items.Clear();
-
-    public decimal CalculateTotal() => _items.Sum(i => i.TotalPrice);
-
-    public List<OrderItem> GetItems() => _items.ToList();
-
-    public int ItemCount => _items.Sum(i => i.Quantity);
-    
-    public bool IsEmpty => !_items.Any();
-    
-    public event EventHandler CartChanged;
 }

@@ -8,13 +8,15 @@ public sealed class OrderService : IRepository<Order>, IPaymentProcessor
 {
     private readonly FileService<Order> _fileService;
     private readonly ProductService _productService;
+    private readonly CategoryService _categoryService; 
     private List<Order> _orders;
     private int _nextId;
 
-    public OrderService(ProductService productService)
+    public OrderService(ProductService productService, CategoryService categoryService)
     {
         _fileService = new FileService<Order>("Orders.json");
         _productService = productService;
+        _categoryService = categoryService;
         _orders = _fileService.LoadData();
         _nextId = _orders.Count > 0 ? _orders.Max(o => o.Id) + 1 : 1;
     }
@@ -31,7 +33,6 @@ public sealed class OrderService : IRepository<Order>, IPaymentProcessor
 
     public void Add(Order order)
     {
-        // Update stock for each item
         foreach (var item in order.Items)
         {
             _productService.UpdateStock(item.ProductId, -item.Quantity);
@@ -47,7 +48,6 @@ public sealed class OrderService : IRepository<Order>, IPaymentProcessor
     {
         var existingOrder = GetById(order.Id);
         
-        // Return old stock and deduct new stock
         foreach (var oldItem in existingOrder.Items)
         {
             _productService.UpdateStock(oldItem.ProductId, oldItem.Quantity);
@@ -70,7 +70,6 @@ public sealed class OrderService : IRepository<Order>, IPaymentProcessor
     {
         var order = GetById(id);
         
-        // Return stock
         foreach (var item in order.Items)
         {
             _productService.UpdateStock(item.ProductId, item.Quantity);
@@ -84,7 +83,6 @@ public sealed class OrderService : IRepository<Order>, IPaymentProcessor
 
     public bool ProcessPayment(decimal amount, string paymentMethod)
     {
-        // Simulate payment processing
         return !string.IsNullOrEmpty(paymentMethod) && amount > 0;
     }
 

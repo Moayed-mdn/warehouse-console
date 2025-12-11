@@ -14,14 +14,12 @@ public sealed class FileService<T> where T : class
 
         _filePath = Path.Combine("Data", fileName);
         
-        // Create directory if it doesn't exist
         var directory = Path.GetDirectoryName(_filePath);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
         {
             Directory.CreateDirectory(directory);
         }
 
-        // Create file if it doesn't exist
         if (!File.Exists(_filePath))
         {
             File.WriteAllText(_filePath, "[]");

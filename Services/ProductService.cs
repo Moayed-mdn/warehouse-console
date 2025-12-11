@@ -8,12 +8,14 @@ namespace WarehouseManagementSystem.Services;
 public sealed class ProductService : IRepository<Product>
 {
     private readonly FileService<Product> _fileService;
+    private readonly CategoryService _categoryService;
     private List<Product> _products;
     private int _nextId;
 
-    public ProductService()
+    public ProductService(CategoryService categoryService)
     {
         _fileService = new FileService<Product>("Products.json");
+        _categoryService = categoryService;
         _products = _fileService.LoadData();
         _nextId = _products.Count > 0 ? _products.Max(p => p.Id) + 1 : 1;
     }
@@ -32,9 +34,14 @@ public sealed class ProductService : IRepository<Product>
     {
         Validator.ValidatePositiveDecimal("Price", product.Price);
         Validator.ValidatePositiveInteger("Quantity", product.Quantity);
-
+        Validator.ValidateCategoryExists(product.CategoryId, _categoryService);
+        Validator.ValidateSKU(product.SKU);
         product.Id = _nextId++;
         product.CreatedAt = DateTime.Now;
+          //    SKU تحقق من عدم تكرار 
+        if (_products.Any(p => p.SKU.Equals(product.SKU, StringComparison.OrdinalIgnoreCase)))
+            throw new ValidationException($"Product with SKU '{product.SKU}' already exists");
+
         _products.Add(product);
         Save();
     }
@@ -42,7 +49,17 @@ public sealed class ProductService : IRepository<Product>
     public void Update(Product updatedProduct)
     {
         var existingProduct = GetById(updatedProduct.Id);
-        
+    
+        Validator.ValidateProductName(updatedProduct.Name);
+        Validator.ValidatePositiveDecimal("Price", updatedProduct.Price);
+        Validator.ValidatePositiveInteger("Quantity", updatedProduct.Quantity);
+        Validator.ValidateCategoryExists(updatedProduct.CategoryId, _categoryService); 
+        Validator.ValidateSKU(updatedProduct.SKU);
+
+        if (_products.Any(p => p.Id != updatedProduct.Id && 
+            p.SKU.Equals(updatedProduct.SKU, StringComparison.OrdinalIgnoreCase)))
+            throw new ValidationException($"Product with SKU '{updatedProduct.SKU}' already exists");
+
         existingProduct.Name = updatedProduct.Name;
         existingProduct.Description = updatedProduct.Description;
         existingProduct.Price = updatedProduct.Price;

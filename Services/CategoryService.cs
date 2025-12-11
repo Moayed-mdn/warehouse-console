@@ -39,7 +39,6 @@ public sealed class CategoryService : IRepository<Category>
 
     public void Add(Category category)
     {
-        // Validate input
         if (string.IsNullOrWhiteSpace(category.Name))
             throw new ValidationException("Category name cannot be empty");
         
@@ -59,7 +58,6 @@ public sealed class CategoryService : IRepository<Category>
     {
         var existingCategory = GetById(updatedCategory.Id);
         
-        // Check if new name conflicts with other categories
         if (!existingCategory.Name.Equals(updatedCategory.Name, StringComparison.OrdinalIgnoreCase) &&
             _categories.Any(c => c.Id != updatedCategory.Id && 
                 c.Name.Equals(updatedCategory.Name, StringComparison.OrdinalIgnoreCase)))
@@ -78,8 +76,6 @@ public sealed class CategoryService : IRepository<Category>
     {
         var category = GetById(id);
         
-        // Check if category has products (in a real scenario, you'd check with ProductService)
-        // For now, we'll allow deletion
         
         _categories.Remove(category);
         Save();
